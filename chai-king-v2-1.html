@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#07080f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chai King">
+<title>☕ Chai King — Cosmos</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon/192.png">
+
+<!-- Preload both fonts for instant rendering -->
+<link rel="preload" href="./Font/Baloo2.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="./Font/Nunito.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<style>
+/* ── LOCAL FONTS (no Google Fonts, fully offline) ── */
+@font-face {
+  font-family: 'Baloo 2';
+  src: url('./Font/Baloo2.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nunito';
+  src: url('./Font/Nunito.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --chai:#c47c2b;--chail:#e8a84a;--chaid:#7a4a0e;
+  --cream:#fef3dc;--star:#ffe066;--cosmos:#07080f;
+  --acc:#ff6b35;--purple:#9b5de5;--green:#06d6a0;--blue:#4cc9f0;
+  --text:#f0eaff;--muted:#7a6a99;--s1:#0d0e1c;--s2:#141628;--s3:#1c1e35;
+  --border:rgba(196,124,43,0.2);
+}
+html,body{height:100%;overflow:hidden;background:var(--cosmos);color:var(--text);
+  font-family:'Nunito',sans-serif;touch-action:manipulation;}
+body{display:flex;flex-direction:column;height:100dvh;}
+
+#starCanvas{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* HEADER */
+#hdr{
+  position:relative;z-index:2;flex-shrink:0;
+  background:rgba(7,8,15,0.97);border-bottom:1px solid var(--border);
+  padding:10px 14px 8px;display:flex;align-items:center;justify-content:space-between;
+}
+.game-title{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;line-height:1;
+  background:linear-gradient(135deg,var(--chail),var(--star),var(--acc));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.game-sub{font-size:0.58rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+#saveBtn{background:var(--s3);border:1px solid var(--border);border-radius:8px;
+  padding:4px 10px;font-size:0.65rem;font-weight:800;color:var(--chail);
+  cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.1s;}
+#saveBtn:active{transform:scale(0.92);}
+.cps-badge{font-size:0.65rem;color:var(--muted);}
+.cps-val{color:var(--green);font-weight:800;}
+
+/* SETTINGS BTN */
+#settingsBtn{background:var(--s3);border:1px solid var(--border);border-radius:8px;
+  padding:4px 8px;font-size:0.75rem;cursor:pointer;transition:transform 0.1s;line-height:1;}
+#settingsBtn:active{transform:scale(0.92);}
+
+/* SETTINGS MODAL */
+#settingsModal{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#settingsModal.open{display:flex;}
+.settings-box{
+  background:var(--s1);border:1px solid var(--border);border-radius:20px;
+  padding:20px;width:100%;max-width:320px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.5);
+}
+.settings-title{
+  font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;
+  color:var(--chail);margin-bottom:16px;display:flex;
+  align-items:center;justify-content:space-between;
+}
+.settings-close{font-size:1.2rem;cursor:pointer;opacity:0.6;transition:opacity 0.1s;
+  background:none;border:none;color:var(--text);}
+.settings-close:active{opacity:1;}
+.vol-row{margin-bottom:14px;}
+.vol-label{display:flex;justify-content:space-between;align-items:center;
+  font-size:0.72rem;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.vol-val{color:var(--star);font-size:0.8rem;}
+.vol-slider{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:5px;border-radius:99px;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--chai) var(--pct,50%),rgba(255,255,255,0.1) var(--pct,50%));
+}
+.vol-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(135deg,var(--chail),var(--star));
+  box-shadow:0 2px 8px rgba(196,124,43,0.5);cursor:pointer;
+}
+.vol-slider::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,var(--chail),var(--star));
+}
+.mute-row{display:flex;gap:8px;margin-top:4px;}
+.mute-btn{
+  flex:1;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;
+  padding:8px;font-size:0.72rem;font-weight:800;color:var(--muted);
+  cursor:pointer;font-family:'Nunito',sans-serif;text-align:center;transition:all 0.13s;
+}
+.mute-btn.active{background:rgba(196,124,43,0.15);border-color:var(--chai);color:var(--chail);}
+.mute-btn:active{transform:scale(0.94);}
+
+/* DELETE DATA BTN */
+.danger-divider{height:1px;background:rgba(239,71,111,0.15);margin:16px 0 14px;}
+.delete-btn{
+  width:100%;background:rgba(239,71,111,0.08);border:1.5px solid rgba(239,71,111,0.25);
+  border-radius:10px;padding:10px;color:#ef476f;font-size:0.78rem;font-weight:800;
+  cursor:pointer;font-family:'Nunito',sans-serif;text-align:center;
+  transition:all 0.13s;letter-spacing:0.5px;
+}
+.delete-btn:active{background:rgba(239,71,111,0.18);}
+
+/* DELETE CONFIRM MODAL */
+#deleteModal{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#deleteModal.open{display:flex;}
+.delete-box{
+  background:var(--s1);border:1px solid rgba(239,71,111,0.3);border-radius:20px;
+  padding:22px;width:100%;max-width:300px;
+  box-shadow:0 16px 48px rgba(239,71,111,0.15);
+}
+.del-ico{font-size:2.6rem;text-align:center;display:block;margin-bottom:8px;}
+.del-title{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;
+  color:#ef476f;text-align:center;margin-bottom:6px;}
+.del-desc{font-size:0.72rem;color:var(--muted);text-align:center;
+  line-height:1.7;margin-bottom:16px;}
+.del-desc b{color:var(--text);}
+#delStep1 .del-btns{display:flex;gap:8px;}
+.del-cancel{flex:1;background:var(--s3);border:1px solid var(--border);border-radius:10px;
+  padding:10px;font-size:0.78rem;font-weight:800;color:var(--muted);
+  cursor:pointer;font-family:'Nunito',sans-serif;text-align:center;transition:all 0.12s;}
+.del-cancel:active{transform:scale(0.94);}
+.del-yes{flex:1;background:rgba(239,71,111,0.12);border:1.5px solid rgba(239,71,111,0.35);
+  border-radius:10px;padding:10px;font-size:0.78rem;font-weight:800;color:#ef476f;
+  cursor:pointer;font-family:'Nunito',sans-serif;text-align:center;transition:all 0.12s;}
+.del-yes:active{background:rgba(239,71,111,0.25);transform:scale(0.94);}
+#delStep2{display:none;}
+.del-code-wrap{
+  background:var(--s2);border:1px solid rgba(239,71,111,0.2);border-radius:12px;
+  padding:14px;text-align:center;margin-bottom:14px;
+}
+.del-code-label{font-size:0.6rem;color:var(--muted);letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:6px;}
+.del-code-num{font-family:'Baloo 2',cursive;font-size:2.4rem;font-weight:800;
+  color:#ef476f;letter-spacing:8px;text-shadow:0 0 20px rgba(239,71,111,0.4);}
+#delCodeInput{
+  width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;
+  padding:10px;text-align:center;font-family:'Baloo 2',cursive;font-size:1.4rem;
+  font-weight:800;color:var(--text);outline:none;letter-spacing:6px;
+  margin-bottom:12px;-webkit-appearance:none;
+}
+#delCodeInput:focus{border-color:rgba(239,71,111,0.5);}
+#delCodeInput.wrong{border-color:#ef476f;animation:shake 0.3s ease;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-6px);}
+  75%{transform:translateX(6px);}
+}
+.del-confirm{
+  width:100%;background:linear-gradient(135deg,#ef476f,#c13258);
+  border:none;border-radius:10px;padding:11px;font-size:0.82rem;font-weight:800;
+  color:#fff;cursor:pointer;font-family:'Nunito',sans-serif;
+  transition:transform 0.12s,opacity 0.12s;letter-spacing:0.5px;
+}
+.del-confirm:disabled{opacity:0.35;cursor:not-allowed;}
+.del-confirm:not(:disabled):active{transform:scale(0.95);}
+.del-hint{font-size:0.62rem;color:var(--muted);text-align:center;margin-top:8px;}
+.big-num{font-family:'Baloo 2',cursive;font-size:2.4rem;font-weight:800;
+  color:var(--star);line-height:1;text-shadow:0 0 24px rgba(255,224,102,0.35);}
+.big-label{font-size:0.68rem;color:var(--muted);margin-top:1px;}
+
+/* RANK BAR */
+#rankBar{position:relative;z-index:2;flex-shrink:0;padding:0 14px 6px;}
+.rank-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.rank-name{font-size:0.75rem;font-weight:800;color:var(--chail);}
+.rank-next{font-size:0.62rem;color:var(--muted);}
+.rbar{height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;}
+.rbar-fill{height:100%;background:linear-gradient(90deg,var(--chai),var(--star));
+  border-radius:99px;transition:width 0.5s ease;}
+
+/* CUP */
+#cupArea{position:relative;z-index:2;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;padding:4px 0 6px;}
+#goldenLabel{font-size:0.7rem;font-weight:900;color:gold;letter-spacing:1px;
+  text-transform:uppercase;animation:gblink 0.5s ease-in-out infinite alternate;margin-bottom:4px;}
+@keyframes gblink{from{opacity:0.5;}to{opacity:1;}}
+#cupBtn{position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;
+  width:140px;height:140px;display:flex;align-items:center;justify-content:center;
+  transition:transform 0.08s;}
+#cupBtn:active{transform:scale(0.93);}
+.cup-svg{width:130px;height:130px;
+  filter:drop-shadow(0 0 18px rgba(196,124,43,0.5));transition:filter 0.2s;}
+.steam-line{animation:steam 2s ease-in-out infinite;transform-origin:bottom center;}
+.steam-line:nth-child(2){animation-delay:0.4s;}
+.steam-line:nth-child(3){animation-delay:0.8s;}
+@keyframes steam{0%{opacity:0;transform:translateY(0) scaleX(1);}30%{opacity:0.7;}100%{opacity:0;transform:translateY(-16px) scaleX(1.4);}}
+
+#cupBtn.golden .cup-svg{
+  filter:drop-shadow(0 0 30px gold) drop-shadow(0 0 60px orange);
+  animation:gpulse 0.6s ease-in-out infinite alternate;}
+@keyframes gpulse{from{filter:drop-shadow(0 0 20px gold);}to{filter:drop-shadow(0 0 50px gold) drop-shadow(0 0 80px orange);}}
+
+.ripple{position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(232,168,74,0.55),transparent);
+  animation:rip 0.55s ease-out forwards;transform:translate(-50%,-50%);}
+@keyframes rip{0%{width:0;height:0;opacity:1;}100%{width:110px;height:110px;opacity:0;}}
+
+.float-txt{position:absolute;pointer-events:none;font-weight:900;color:var(--star);
+  animation:flt 0.9s ease-out forwards;white-space:nowrap;
+  font-family:'Baloo 2',cursive;text-shadow:0 2px 8px rgba(0,0,0,0.5);font-size:1rem;}
+.float-txt.crit{color:#ff4488;font-size:1.3rem;}
+.float-txt.golden-fx{color:gold;font-size:1.2rem;}
+@keyframes flt{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-55px) scale(0.8);}}
+
+/* TABS */
+#tabBar{position:relative;z-index:2;flex-shrink:0;
+  display:flex;background:var(--s1);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:0.6rem;font-weight:800;
+  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+  text-transform:uppercase;letter-spacing:1px;transition:all 0.15s;}
+.tab.on{color:var(--chail);border-bottom-color:var(--chail);}
+
+/* PANES */
+#panesWrap{position:relative;z-index:2;flex:1;overflow:hidden;}
+.pane{display:none;height:100%;overflow-y:auto;padding:10px 12px 16px;overscroll-behavior:contain;}
+.pane.on{display:block;}
+.pane::-webkit-scrollbar{width:3px;}
+.pane::-webkit-scrollbar-thumb{background:var(--chaid);border-radius:99px;}
+
+/* UPGRADES */
+.upg{display:flex;align-items:flex-start;gap:10px;
+  background:var(--s2);border:1.5px solid var(--border);border-radius:14px;
+  padding:10px 12px;margin-bottom:8px;cursor:pointer;
+  position:relative;overflow:hidden;transition:border-color 0.15s,background 0.15s;}
+.upg::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--chai);border-radius:99px;}
+.upg.can{border-color:rgba(232,168,74,0.4);}
+.upg.can:active{transform:scale(0.97);background:rgba(196,124,43,0.1);}
+.upg.locked{opacity:0.35;cursor:not-allowed;}
+.upg.owned::before{background:var(--star);}
+.upg-ico{font-size:1.5rem;flex-shrink:0;margin-top:1px;}
+.upg-body{flex:1;min-width:0;}
+.upg-top{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.upg-name{font-size:0.82rem;font-weight:800;color:var(--cream);}
+.upg-cnt{font-size:0.65rem;font-weight:900;color:var(--star);
+  background:rgba(255,224,102,0.1);border-radius:6px;padding:1px 6px;flex-shrink:0;}
+.upg-desc{font-size:0.65rem;color:var(--muted);margin:2px 0 4px;line-height:1.4;}
+.upg-cost{font-size:0.72rem;font-weight:800;color:var(--muted);}
+.upg-cost.afford{color:var(--star);}
+.upg-bonus{font-size:0.6rem;color:#7a5a9a;}
+
+/* RUPEES BADGE */
+.rupee-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:linear-gradient(135deg,rgba(0,180,80,0.15),rgba(0,100,40,0.1));
+  border:1px solid rgba(0,200,80,0.3);border-radius:10px;
+  padding:3px 10px;font-size:0.72rem;font-weight:900;
+  color:#4eff8a;margin-top:4px;
+}
+.rupee-badge span{font-size:0.85rem;}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.stat-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;}
+.stat-lbl{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);}
+.stat-val{font-size:1.1rem;font-weight:900;color:var(--star);line-height:1.2;margin-top:2px;}
+
+/* GALAXY TAB */
+.locked-galaxy{
+  text-align:center;padding:24px 16px;
+}
+.lock-ico{font-size:3rem;display:block;margin-bottom:10px;}
+.lock-title{font-size:1rem;font-weight:900;color:var(--muted);margin-bottom:6px;}
+.lock-desc{font-size:0.75rem;color:var(--muted);opacity:0.7;line-height:1.8;}
+.lock-progress{
+  background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  padding:10px 14px;margin-top:14px;
+}
+.lock-rank{font-size:0.72rem;color:var(--chail);font-weight:800;}
+
+/* ORDER CARDS */
+.galaxy-header{
+  background:linear-gradient(135deg,rgba(76,201,240,0.08),rgba(155,93,229,0.08));
+  border:1px solid rgba(76,201,240,0.2);border-radius:14px;
+  padding:12px 14px;margin-bottom:12px;
+}
+.galaxy-title{font-size:0.85rem;font-weight:900;color:var(--blue);margin-bottom:2px;}
+.galaxy-sub{font-size:0.65rem;color:var(--muted);}
+.rupee-total{font-size:1.1rem;font-weight:900;color:#4eff8a;margin-top:6px;}
+.rupee-total small{font-size:0.65rem;color:var(--muted);font-weight:600;}
+
+.orders-title{font-size:0.6rem;text-transform:uppercase;letter-spacing:2px;
+  color:var(--muted);margin-bottom:8px;}
+
+.order-card{
+  background:var(--s2);border:1.5px solid var(--border);border-radius:14px;
+  padding:11px 13px;margin-bottom:9px;cursor:pointer;
+  transition:all 0.15s;position:relative;overflow:hidden;
+}
+.order-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  border-radius:99px;}
+.order-card.andromeda::before{background:var(--blue);}
+.order-card.milkyway::before{background:var(--purple);}
+.order-card.sombrero::before{background:var(--acc);}
+.order-card.triangulum::before{background:var(--green);}
+.order-card.whirlpool::before{background:#ff6b6b;}
+.order-card:active:not(.sending):not(.done){transform:scale(0.97);}
+.order-card.sending{cursor:not-allowed;opacity:0.7;}
+.order-card.done{border-color:rgba(78,255,138,0.4);background:rgba(78,255,138,0.04);}
+
+.order-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.order-galaxy{font-size:0.82rem;font-weight:900;color:var(--text);}
+.order-reward{font-size:0.78rem;font-weight:900;color:#4eff8a;}
+.order-desc{font-size:0.65rem;color:var(--muted);margin-bottom:7px;line-height:1.4;}
+.order-meta{display:flex;align-items:center;justify-content:space-between;}
+.order-time{font-size:0.65rem;color:var(--muted);}
+.order-time span{color:var(--blue);font-weight:800;}
+
+.send-btn{
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  color:#fff;border:none;border-radius:8px;padding:5px 14px;
+  font-size:0.7rem;font-weight:800;cursor:pointer;
+  font-family:'Nunito',sans-serif;transition:transform 0.1s;
+}
+.send-btn:active{transform:scale(0.9);}
+.send-btn:disabled{background:var(--s3);color:var(--muted);cursor:not-allowed;}
+
+/* Delivery progress bar */
+.dlv-bar-wrap{margin-top:7px;}
+.dlv-bar-label{display:flex;justify-content:space-between;
+  font-size:0.6rem;color:var(--muted);margin-bottom:3px;}
+.dlv-bar{height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.dlv-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));
+  border-radius:99px;transition:width 0.5s linear;}
+
+.collect-btn{
+  width:100%;background:linear-gradient(135deg,#4eff8a,#06d6a0);
+  color:#000;border:none;border-radius:8px;padding:7px;
+  font-size:0.78rem;font-weight:900;cursor:pointer;
+  font-family:'Nunito',sans-serif;margin-top:6px;transition:transform 0.1s;
+}
+.collect-btn:active{transform:scale(0.96);}
+
+/* ACHIEVEMENTS */
+.ach{display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1.5px solid var(--border);border-radius:12px;
+  padding:9px 12px;margin-bottom:7px;}
+.ach.done{border-color:rgba(255,224,102,0.3);background:rgba(255,224,102,0.04);}
+.ach-ico{font-size:1.3rem;flex-shrink:0;}
+.ach-body{flex:1;}
+.ach-name{font-size:0.78rem;font-weight:800;color:var(--cream);}
+.ach-desc{font-size:0.62rem;color:var(--muted);margin-top:1px;}
+.ach-reward{font-size:0.6rem;color:var(--star);margin-top:2px;font-weight:800;}
+
+/* INFO */
+.info-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;}
+.info-title{font-size:0.62rem;text-transform:uppercase;letter-spacing:2px;color:var(--chail);margin-bottom:6px;}
+.info-text{font-size:0.75rem;color:var(--muted);line-height:1.9;}
+
+/* MILESTONE */
+#milestone{
+  position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-120px);
+  z-index:100;background:linear-gradient(135deg,var(--chaid),#0d0e1c);
+  border:1px solid var(--chail);border-radius:0 0 20px 20px;
+  padding:14px 24px 16px;text-align:center;min-width:260px;
+  box-shadow:0 8px 32px rgba(196,124,43,0.3);
+  transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);}
+#milestone.show{transform:translateX(-50%) translateY(0);}
+#ms-emoji{font-size:2rem;}
+#ms-tag{font-size:0.58rem;color:var(--chail);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+#ms-name{font-size:0.95rem;font-weight:900;color:var(--star);}
+
+/* OFFLINE TOAST */
+#offToast{
+  position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(20px);
+  z-index:100;background:linear-gradient(135deg,#0d1c0d,#0d0e1c);
+  border:1px solid var(--green);border-radius:14px;
+  padding:12px 20px;text-align:center;min-width:220px;
+  opacity:0;transition:all 0.4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+#offToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#off-txt{font-size:0.82rem;font-weight:800;color:var(--green);}
+#off-sub{font-size:0.65rem;color:var(--muted);margin-top:2px;}
+
+/* TICKER */
+#ticker{position:relative;z-index:2;flex-shrink:0;
+  background:rgba(196,124,43,0.07);border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;padding:5px 12px;overflow:hidden;height:28px;}
+.ticker-lbl{font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--chail);flex-shrink:0;opacity:0.8;}
+#tickerTxt{white-space:nowrap;font-size:0.7rem;color:var(--cream);opacity:0.85;
+  animation:tick 22s linear infinite;}
+@keyframes tick{0%{transform:translateX(110vw);}100%{transform:translateX(-200%);}}
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<!-- Milestone -->
+<div id="milestone">
+  <div id="ms-emoji">👑</div>
+  <div id="ms-tag">New Rank!</div>
+  <div id="ms-name">Gully Chai Seller</div>
+</div>
+
+<!-- Offline -->
+<div id="offToast">
+  <div id="off-txt">☕ Welcome back!</div>
+  <div id="off-sub">Offline earnings added</div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal">
+  <div class="settings-box">
+    <div class="settings-title">
+      ⚙️ Settings
+      <button class="settings-close" id="settingsClose">✕</button>
+    </div>
+
+    <div class="vol-row">
+      <div class="vol-label">
+        <span>🎵 BGM Volume</span>
+        <span class="vol-val" id="bgmVal">50%</span>
+      </div>
+      <input type="range" class="vol-slider" id="bgmSlider" min="0" max="100" value="50">
+    </div>
+
+    <div class="vol-row">
+      <div class="vol-label">
+        <span>🔊 SFX Volume</span>
+        <span class="vol-val" id="sfxVal">80%</span>
+      </div>
+      <input type="range" class="vol-slider" id="sfxSlider" min="0" max="100" value="80">
+    </div>
+
+    <div class="mute-row">
+      <div class="mute-btn" id="muteBgmBtn">🎵 BGM On</div>
+      <div class="mute-btn" id="muteSfxBtn">🔊 SFX On</div>
+    </div>
+
+    <div class="danger-divider"></div>
+    <div class="delete-btn" id="deleteDataBtn">🗑️ Erase All Data</div>
+
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal">
+  <div class="delete-box">
+    <div id="delStep1">
+      <span class="del-ico">⚠️</span>
+      <div class="del-title">Erase All Data?</div>
+      <div class="del-desc">
+        This will <b>permanently delete</b> all your progress —<br>
+        cups, rupees, rank, upgrades, achievements.<br><br>
+        <b>This cannot be undone.</b>
+      </div>
+      <div class="del-btns">
+        <div class="del-cancel" id="delCancel1">✕ Cancel</div>
+        <div class="del-yes" id="delYes">Yes, Delete →</div>
+      </div>
+    </div>
+    <div id="delStep2">
+      <span class="del-ico">🔐</span>
+      <div class="del-title">Type the code</div>
+      <div class="del-code-wrap">
+        <div class="del-code-label">Enter this number to confirm</div>
+        <div class="del-code-num" id="delCodeDisplay">---</div>
+      </div>
+      <input type="number" id="delCodeInput" placeholder="···" maxlength="3" inputmode="numeric">
+      <button class="del-confirm" id="delConfirmBtn" disabled>🗑️ Delete Everything</button>
+      <div class="del-cancel" id="delCancel2" style="margin-top:8px;text-align:center;cursor:pointer;">✕ Cancel</div>
+      <div class="del-hint">Wrong code = nothing deleted</div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div>
+    <div class="game-title">☕ Chai King</div>
+    <div class="game-sub">Cosmos Edition v2</div>
+  </div>
+  <div class="hdr-right">
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button id="settingsBtn">⚙️</button>
+      <button id="saveBtn">💾 Save</button>
+    </div>
+    <div class="cps-badge"><span class="cps-val" id="cpsHdr">0</span>/sec</div>
+    <div class="rupee-badge"><span>₹</span><span id="rupeeHdr">0</span></div>
+  </div>
+</div>
+
+<!-- COUNTER -->
+<div id="mainCounter">
+  <div class="big-num" id="bigNum">0</div>
+  <div class="big-label" id="bigLabel">cups of chai</div>
+</div>
+
+<!-- RANK BAR -->
+<div id="rankBar">
+  <div class="rank-row">
+    <span class="rank-name" id="rankName">🫖 Gully Chai Seller</span>
+    <span class="rank-next" id="rankNext">500 cups</span>
+  </div>
+  <div class="rbar"><div class="rbar-fill" id="rbarFill" style="width:0%"></div></div>
+</div>
+
+<!-- CUP -->
+<div id="cupArea">
+  <div id="goldenLabel" style="display:none;">✨ GOLDEN CUP! Tap now! ✨</div>
+  <div id="cupBtn">
+    <svg class="cup-svg" viewBox="0 0 130 130" fill="none">
+      <g>
+        <path class="steam-line" d="M48 32 Q43 22 48 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
+        <path class="steam-line" d="M65 28 Q60 18 65 8"  stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
+        <path class="steam-line" d="M82 32 Q77 22 82 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
+      </g>
+      <ellipse cx="65" cy="115" rx="42" ry="8" fill="#7a4a0e" opacity="0.65"/>
+      <ellipse cx="65" cy="112" rx="38" ry="6.5" fill="#c47c2b"/>
+      <path d="M28 56 L40 110 Q42 118 65 118 Q88 118 90 110 L102 56 Z" fill="#c47c2b"/>
+      <path d="M32 78 L42 110 Q44 118 65 118 Q86 118 88 110 L98 78 Z" fill="#e8a84a" opacity="0.88"/>
+      <ellipse cx="65" cy="78" rx="33" ry="7" fill="#fef3dc" opacity="0.82"/>
+      <ellipse cx="57" cy="77" rx="9" ry="4.5" fill="white" opacity="0.45"/>
+      <ellipse cx="73" cy="76" rx="7" ry="3.5" fill="white" opacity="0.35"/>
+      <ellipse cx="65" cy="56" rx="37" ry="8" fill="#d4892f"/>
+      <path d="M100 70 Q126 70 126 90 Q126 108 100 103" stroke="#a05a18" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M100 70 Q122 70 122 90 Q122 104 100 103" stroke="#c47c2b" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="90" rx="6" ry="12" fill="white" opacity="0.08" transform="rotate(-15 50 90)"/>
+      <text x="54" y="102" font-size="14" opacity="0.5">✨</text>
+    </svg>
+  </div>
+</div>
+
+<!-- TABS -->
+<div id="tabBar">
+  <div class="tab on" data-p="Upgrades">⬆️ Upgrades</div>
+  <div class="tab" data-p="Stats">📊 Stats</div>
+  <div class="tab" data-p="Achieve">🏆 Goals</div>
+  <div class="tab" data-p="Galaxy">🚀 Galaxy</div>
+</div>
+
+<!-- PANES -->
+<div id="panesWrap">
+  <div class="pane on" id="pUpgrades"><div id="upgList"></div></div>
+
+  <div class="pane" id="pStats">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-lbl">Total Sold</div><div class="stat-val" id="sTotal">0</div></div>
+      <div class="stat-card"><div class="stat-lbl">Per Second</div><div class="stat-val" id="sCps">0</div></div>
+      <div class="stat-card"><div class="stat-lbl">Per Click</div><div class="stat-val" id="sCpc">1</div></div>
+      <div class="stat-card"><div class="stat-lbl">Customers</div><div class="stat-val" id="sCust">0</div></div>
+      <div class="stat-card"><div class="stat-lbl">Total Clicks</div><div class="stat-val" id="sClicks">0</div></div>
+      <div class="stat-card"><div class="stat-lbl">Critical Hits</div><div class="stat-val" id="sCrits">0</div></div>
+      <div class="stat-card"><div class="stat-lbl">Total ₹ Earned</div><div class="stat-val" id="sRupees">₹0</div></div>
+    </div>
+  </div>
+
+  <div class="pane" id="pAchieve"><div id="achList"></div></div>
+
+  <div class="pane" id="pGalaxy">
+    <div id="galaxyContent"></div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div id="ticker">
+  <span class="ticker-lbl">📰</span>
+  <div id="tickerTxt">Loading breaking chai news...</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  CHAI KING v2  |  Optimised Mobile Clicker
+//  Features: rAF loop • canvas stars • save/load
+//            offline earnings • golden cup
+//            critical hits • achievements • tabs
+// ════════════════════════════════════════════════
+
+const RANKS=[
+  {name:'Gully Chai Seller',     emoji:'🫖',t:0},
+  {name:'Mohalla Chai Master',   emoji:'🍵',t:500},
+  {name:'City Chai Champion',    emoji:'🏙️',t:5000},
+  {name:'State Chai Overlord',   emoji:'👑',t:50000},
+  {name:'National Chai Tycoon',  emoji:'🇮🇳',t:500000},
+  {name:'Intergalactic Chai Boss',emoji:'🚀',t:5000000},
+  {name:'Galactic Chai Emperor', emoji:'🌌',t:50000000},
+  {name:'Cosmic Chai God',       emoji:'⚡',t:500000000},
+  {name:"UNIVERSE'S CHAI KING",  emoji:'🌠',t:5000000000},
+];
+
+const UPGRADES=[
+  {id:'adrak',     name:'Extra Adrak',          emoji:'🫚',desc:'+1/click. Zyada spicy, zyada sales!',            baseCost:10,       cpc:1,  cps:0   },
+  {id:'cutting',   name:'Cutting Chai Style',   emoji:'✂️',desc:'Small cups, more customers. +0.5/sec',           baseCost:50,       cpc:0,  cps:0.5 },
+  {id:'masala',    name:'Secret Masala Mix',     emoji:'🌶️',desc:'Formula goes viral. +1/sec',                    baseCost:200,      cpc:0,  cps:1   },
+  {id:'stall',     name:'Proper Chai Stall',     emoji:'🏪',desc:'Customers come to you. +3/sec',                 baseCost:800,      cpc:0,  cps:3   },
+  {id:'kettle',    name:'Auto Kettle 3000',      emoji:'⚙️',desc:'Brews while you sleep. +8/sec',                 baseCost:3000,     cpc:0,  cps:8   },
+  {id:'hands',     name:'Power Hands',           emoji:'💪',desc:'+5/click. Ek haath se 5 cups!',                 baseCost:5000,     cpc:5,  cps:0   },
+  {id:'franchise', name:'Chai Franchise',        emoji:'🏬',desc:'100 outlets across India. +25/sec',            baseCost:15000,    cpc:0,  cps:25  },
+  {id:'rocket',    name:'Rocket Delivery',       emoji:'🚀',desc:'Space station deliveries. +60/sec',            baseCost:80000,    cpc:0,  cps:60  },
+  {id:'alien',     name:'Alien Partnership',     emoji:'👽',desc:'Zeta Reticulans love masala. +150/sec',        baseCost:350000,   cpc:0,  cps:150 },
+  {id:'cosmic',    name:'Cosmic Hands',          emoji:'🌌',desc:'+50/click. Universe trembles.',                 baseCost:500000,   cpc:50, cps:0   },
+  {id:'timewarp',  name:'Time Warp Masala',      emoji:'⏰',desc:'+20/click. Brew across timelines!',            baseCost:1000000,  cpc:20, cps:0   },
+  {id:'devchai',   name:'Developer Chai',        emoji:'💻',desc:'Chai for 1000 devs. +300/sec',                baseCost:5000000,  cpc:0,  cps:300 },
+  {id:'blackhole', name:'Black Hole Kettle',     emoji:'🕳️',desc:'Brews from spacetime. +500/sec',              baseCost:2000000,  cpc:0,  cps:500 },
+  {id:'multiverse',name:'Multiverse Franchise',  emoji:'🌠',desc:'Every universe. +2000/sec',                   baseCost:20000000, cpc:0,  cps:2000},
+  {id:'godhand',   name:'God Hand Tap',          emoji:'☁️',desc:'+200/click. You are chai.',                    baseCost:50000000, cpc:200,cps:0   },
+];
+
+const ACHIEVEMENTS=[
+  {id:'first',    name:'First Cup!',        emoji:'☕',desc:'Sell your first cup',              check:s=>s.total>=1,                                             reward:'cpc',val:5  },
+  {id:'c100',     name:'Century!',          emoji:'💯',desc:'Sell 100 cups',                    check:s=>s.total>=100,                                           reward:'cpc',val:2  },
+  {id:'c1k',      name:'Chai Warrior',      emoji:'⚔️',desc:'Sell 1,000 cups',                  check:s=>s.total>=1000,                                          reward:'cps',val:0.5},
+  {id:'c100k',    name:'Chai Tycoon',       emoji:'💰',desc:'Sell 100,000 cups',               check:s=>s.total>=100000,                                         reward:'cps',val:5  },
+  {id:'c1m',      name:'Million Cup March!',emoji:'🎖️',desc:'Sell 1 million cups',              check:s=>s.total>=1000000,                                       reward:'cps',val:50 },
+  {id:'click50',  name:'Clicker',           emoji:'👆',desc:'Click 50 times',                  check:s=>s.clicks>=50,                                           reward:'cpc',val:3  },
+  {id:'click500', name:'Tap Legend',        emoji:'🔥',desc:'Click 500 times',                 check:s=>s.clicks>=500,                                          reward:'cpc',val:10 },
+  {id:'crits10',  name:'Critical Master',   emoji:'💥',desc:'Get 10 critical hits',            check:s=>s.crits>=10,                                            reward:'cpc',val:5  },
+  {id:'rank3',    name:'City Boy',          emoji:'🏙️',desc:'Reach City Chai Champion',        check:s=>s.rankIdx>=2,                                           reward:'cps',val:2  },
+  {id:'rank5',    name:'National Hero',     emoji:'🇮🇳',desc:'Reach National Chai Tycoon',     check:s=>s.rankIdx>=4,                                           reward:'cps',val:10 },
+  {id:'golden1',  name:'Midas Touch',       emoji:'✨',desc:'Click a Golden Cup',              check:s=>s.goldenClicks>=1,                                      reward:'cpc',val:10 },
+  {id:'upg5',     name:'Upgrade Addict',    emoji:'⬆️',desc:'Buy 5 different upgrades',        check:s=>s.upgrades.filter(u=>u.bought>0).length>=5,            reward:'cps',val:1  },
+];
+
+const NEWS=[
+  "Breaking: Local 13-year-old's chai empire surpasses GDP of 47 countries 📈",
+  "Aliens issue formal request: 'Please send more masala chai to Andromeda' 👽",
+  "Scientists discover: chai molecules found at the Big Bang origin point ☕",
+  "PM visits Gully Chai King: 'This boy is our real national treasure'",
+  "NASA: astronauts refusing to return until chai supply is on ISS 🚀",
+  "Sun's gravitational pull now attracts orbiting chai cups ☀️",
+  "Economists baffled: chai now stronger currency than US Dollar 💰",
+  "Area student beats Elon Musk, Mukesh Ambani on Forbes with chai money",
+  "Black holes discovered to be filled with chai, not plasma",
+  "Universe expansion attributed to chai aroma spreading through cosmos 🌌",
+  "God spotted in queue outside Gully Chai Stall. 'Best chai in existence'",
+  "Physics updated: E=mc² now E=mc²+chai",
+  "BREAKING: Chai declared official drink of 7 alien civilisations 👾",
+  "13-year-old teacher's students now selling chai on Mars 👨‍🏫",
+];
+
+// ── INITIAL STATE ──
+function freshState(){
+  return{
+    chai:0,total:0,cpc:1,cps:0,customers:0,
+    rupees:0,totalRupees:0,
+    clicks:0,crits:0,rankIdx:0,goldenClicks:0,
+    upgrades:UPGRADES.map(u=>({id:u.id,bought:0})),
+    achievements:ACHIEVEMENTS.map(a=>({id:a.id,done:false})),
+    deliveries:[], // active/completed deliveries
+    lastSave:Date.now(),
+  };
+}
+let S=freshState();
+
+// ── STARS (canvas — no DOM elements!) ──
+const sc=document.getElementById('starCanvas');
+const sctx=sc.getContext('2d');
+let stars=[];
+
+function initStars(){
+  sc.width=window.innerWidth;sc.height=window.innerHeight;
+  stars=Array.from({length:70},()=>({
+    x:Math.random()*sc.width,y:Math.random()*sc.height,
+    r:Math.random()*1.2+0.3,phase:Math.random()*Math.PI*2,
+    spd:0.5+Math.random()*1.5,
+  }));
+}
+function drawStars(t){
+  sctx.clearRect(0,0,sc.width,sc.height);
+  stars.forEach(s=>{
+    const a=0.15+0.6*(0.5+0.5*Math.sin(t*0.001*s.spd+s.phase));
+    sctx.fillStyle=`rgba(255,255,255,${a.toFixed(2)})`;
+    sctx.beginPath();sctx.arc(s.x,s.y,s.r,0,Math.PI*2);sctx.fill();
+  });
+}
+window.addEventListener('resize',initStars);
+initStars();
+
+// ── FORMAT ──
+function fmt(n){
+  if(n>=1e15)return(n/1e15).toFixed(2)+'Qa';
+  if(n>=1e12)return(n/1e12).toFixed(2)+'T';
+  if(n>=1e9) return(n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return(n/1e3).toFixed(1)+'K';
+  return Math.floor(n).toString();
+}
+
+// ── RENDER ──
+let _lastRank=-1;
+function render(){
+  document.getElementById('bigNum').textContent=fmt(S.chai);
+  document.getElementById('bigLabel').textContent=`cups of chai • ${fmt(S.customers)} customers`;
+  document.getElementById('cpsHdr').textContent=fmt(S.cps);
+  document.getElementById('rupeeHdr').textContent=fmt(S.rupees);
+
+  const rank=RANKS[S.rankIdx];
+  const next=RANKS[S.rankIdx+1];
+  if(S.rankIdx!==_lastRank){
+    document.getElementById('rankName').textContent=rank.emoji+' '+rank.name;
+    _lastRank=S.rankIdx;
+  }
+  if(next){
+    const pct=Math.min(((S.total-rank.t)/(next.t-rank.t))*100,100);
+    document.getElementById('rbarFill').style.width=pct+'%';
+    document.getElementById('rankNext').textContent=fmt(next.t)+' cups';
+  }else{
+    document.getElementById('rbarFill').style.width='100%';
+    document.getElementById('rankNext').textContent='MAX RANK!';
+  }
+}
+
+function renderUpgrades(){
+  const list=document.getElementById('upgList');list.innerHTML='';
+  UPGRADES.forEach((def,i)=>{
+    const us=S.upgrades.find(x=>x.id===def.id)||{id:def.id,bought:0};
+    const cost=Math.floor(def.baseCost*2*Math.pow(1.55,us.bought)); // ₹ cost
+    const can=S.rupees>=cost;
+    const d=document.createElement('div');
+    d.className=`upg ${can?'can':'locked'} ${us.bought>0?'owned':''}`;
+    d.innerHTML=`<span class="upg-ico">${def.emoji}</span>
+      <div class="upg-body">
+        <div class="upg-top">
+          <span class="upg-name">${def.name}</span>
+          ${us.bought>0?`<span class="upg-cnt">×${us.bought}</span>`:''}
+        </div>
+        <div class="upg-desc">${def.desc}</div>
+        <div class="upg-cost ${can?'afford':''}">₹ ${fmt(cost)}</div>
+        <div class="upg-bonus">${def.cps>0?`+${def.cps}/sec`:''} ${def.cpc>0?`+${def.cpc}/click`:''}</div>
+      </div>`;
+    if(can) d.addEventListener('click',()=>buyUpgrade(def.id));
+    list.appendChild(d);
+  });
+}
+
+function renderStats(){
+  document.getElementById('sTotal').textContent=fmt(S.total);
+  document.getElementById('sCps').textContent=fmt(S.cps);
+  document.getElementById('sCpc').textContent=S.cpc;
+  document.getElementById('sCust').textContent=fmt(S.customers);
+  document.getElementById('sClicks').textContent=fmt(S.clicks);
+  document.getElementById('sCrits').textContent=fmt(S.crits);
+  const re=document.getElementById('sRupees');
+  if(re) re.textContent='₹'+fmt(S.totalRupees||0);
+}
+
+function renderAchievements(){
+  const list=document.getElementById('achList');list.innerHTML='';
+  ACHIEVEMENTS.forEach(a=>{
+    const as=S.achievements.find(x=>x.id===a.id)||{done:false};
+    const d=document.createElement('div');
+    d.className=`ach ${as.done?'done':''}`;
+    d.innerHTML=`<span class="ach-ico">${a.emoji}</span>
+      <div class="ach-body">
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+        ${as.done?`<div class="ach-reward">✅ Reward: +${a.val} ${a.reward}</div>`:`<div class="ach-desc" style="margin-top:2px;opacity:0.5">Not yet</div>`}
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+// ── BUY UPGRADE ──
+function buyUpgrade(id){
+  const def=UPGRADES.find(u=>u.id===id); if(!def) return;
+  let us=S.upgrades.find(u=>u.id===id);
+  if(!us){us={id,bought:0};S.upgrades.push(us);}
+  const cost=Math.floor(def.baseCost*2*Math.pow(1.55,us.bought));
+  if(S.rupees<cost) return;
+  S.rupees-=cost; us.bought++;
+  S.cps+=def.cps; S.cpc+=def.cpc;
+  SND.playSFX('buy');
+  renderUpgrades(); render();
+  floatText(`${def.emoji} Bought!`,null,null,false);
+}
+
+// ── CLICK ──
+const cupBtn=document.getElementById('cupBtn');
+
+function handleClick(e){
+  e.preventDefault();
+  const isCrit=Math.random()<0.05;
+  const isGolden=cupBtn.classList.contains('golden');
+  let gained=S.cpc;
+  if(isCrit){ gained*=5; S.crits++; SND.playSFX('critical'); }
+  if(isGolden){ gained*=10; S.goldenClicks++; deactivateGolden(); SND.playSFX('golden'); }
+  if(!isCrit && !isGolden) SND.playSFX('tap');
+  S.chai+=gained; S.total+=gained; S.clicks++;
+  S.customers+=Math.ceil(S.cpc/2);
+  // Each cup = ₹2
+  const rupeesEarned=gained*2;
+  S.rupees+=rupeesEarned; S.totalRupees+=rupeesEarned;
+
+  // Ripple
+  const rect=cupBtn.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  const cx=t.clientX-rect.left, cy=t.clientY-rect.top;
+  const rip=document.createElement('div');
+  rip.className='ripple';rip.style.left=cx+'px';rip.style.top=cy+'px';
+  cupBtn.appendChild(rip);setTimeout(()=>rip.remove(),560);
+
+  // Float — show rupees earned
+  const label=isGolden?`✨ +₹${fmt(rupeesEarned)}`:isCrit?`💥 +₹${fmt(rupeesEarned)}`:`+₹${fmt(rupeesEarned)}`;
+  floatText(label,cx,cy,isCrit,isGolden);
+
+  checkRank();checkAchievements();render();
+  if(document.getElementById('pUpgrades').classList.contains('on')) renderUpgrades();
+}
+
+cupBtn.addEventListener('touchstart',handleClick,{passive:false});
+cupBtn.addEventListener('click',handleClick);
+
+function floatText(text,x,y,isCrit=false,isGolden=false){
+  const el=document.createElement('div');
+  el.className='float-txt'+(isCrit?' crit':'')+(isGolden?' golden-fx':'');
+  el.textContent=text;
+  el.style.left=(x!=null?x-20:20+Math.random()*80)+'px';
+  el.style.top=(y!=null?y-10:20)+'px';
+  cupBtn.appendChild(el);
+  setTimeout(()=>el.remove(),900);
+}
+
+// ── GOLDEN CUP ──
+let goldenTimer=null;
+function scheduleGolden(){
+  const d=25000+Math.random()*40000;
+  goldenTimer=setTimeout(activateGolden,d);
+}
+function activateGolden(){
+  cupBtn.classList.add('golden');
+  document.getElementById('goldenLabel').style.display='block';
+  SND.playSFX('golden');
+  setTimeout(deactivateGolden,8000);
+}
+function deactivateGolden(){
+  cupBtn.classList.remove('golden');
+  document.getElementById('goldenLabel').style.display='none';
+  scheduleGolden();
+}
+scheduleGolden();
+
+// ── GAME LOOP (requestAnimationFrame — smooth!) ──
+let lastT=0,accum=0;
+const TICK=200;
+
+function loop(ts){
+  drawStars(ts);
+  const dt=Math.min(ts-lastT,500);lastT=ts;accum+=dt;
+  if(accum>=TICK){
+    const secs=accum/1000;accum=0;
+    if(S.cps>0){
+      const g=S.cps*secs;
+      S.chai+=g; S.total+=g; S.customers+=g*0.3;
+      // ₹2 per cup from auto production too
+      S.rupees+=g*2; S.totalRupees+=g*2;
+      checkRank(); checkAchievements();
+    }
+    render();
+    tickDeliveries();
+    if(document.getElementById('pUpgrades').classList.contains('on')) renderUpgrades();
+    if(document.getElementById('pGalaxy').classList.contains('on')) renderGalaxy();
+  }
+  requestAnimationFrame(loop);
+}
+// rAF started by openDB().then(loadGame).then(...) below
+
+// ── RANK CHECK ──
+function checkRank(){
+  for(let i=RANKS.length-1;i>=0;i--){
+    if(S.total>=RANKS[i].t){
+      if(i!==S.rankIdx){S.rankIdx=i;showMilestone(RANKS[i]);}
+      break;
+    }
+  }
+}
+
+function showMilestone(rank){
+  document.getElementById('ms-emoji').textContent=rank.emoji;
+  document.getElementById('ms-name').textContent=rank.name;
+  SND.playSFX('levelup');
+  const el=document.getElementById('milestone');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+// ── ACHIEVEMENTS ──
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    let as=S.achievements.find(x=>x.id===a.id);
+    if(!as){as={id:a.id,done:false};S.achievements.push(as);}
+    if(!as.done&&a.check(S)){
+      as.done=true;
+      if(a.reward==='cpc')S.cpc+=a.val;
+      else if(a.reward==='cps')S.cps+=a.val;
+      SND.playSFX('achieve');
+      showMilestone({emoji:a.emoji,name:`🏆 ${a.name}!`});
+      if(document.getElementById('pAchieve').classList.contains('on'))renderAchievements();
+    }
+  });
+}
+
+// ── TABS ──
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const p=t.dataset.p;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
+    document.querySelectorAll('.pane').forEach(x=>x.classList.toggle('on',x.id==='p'+p));
+    if(p==='Upgrades') renderUpgrades();
+    if(p==='Achieve')  renderAchievements();
+    if(p==='Stats')    renderStats();
+    if(p==='Galaxy')   renderGalaxy();
+  });
+});
+
+// ── GALAXY DELIVERY SYSTEM ──
+const GALAXY_ORDERS=[
+  {id:'andromeda', galaxy:'Andromeda Galaxy',  emoji:'🌌', class:'andromeda', desc:'2.5M light-years away. Their king demands chai urgently!',    minR:1e6,  maxR:50e6  },
+  {id:'milkyway',  galaxy:'Milky Way Express',  emoji:'🚀', class:'milkyway',  desc:'Internal delivery across our own galaxy. Quick but profitable.',minR:5e6,  maxR:100e6 },
+  {id:'sombrero',  galaxy:'Sombrero Galaxy',    emoji:'🎩', class:'sombrero',  desc:'M104 — hat-shaped galaxy. Aliens LOVE masala chai.',            minR:10e6, maxR:200e6 },
+  {id:'triangulum',galaxy:'Triangulum Galaxy',  emoji:'🔺', class:'triangulum',desc:'3rd largest in local group. Bulk order — 10 billion cups!',     minR:50e6, maxR:500e6 },
+  {id:'whirlpool', galaxy:'Whirlpool Galaxy',   emoji:'🌀', class:'whirlpool', desc:'M51 — spiral arms full of chai lovers. VIP order.',             minR:100e6,maxR:1e9   },
+];
+
+// Generate fresh random orders (3 at a time)
+function generateOrders(){
+  if(!S.deliveries) S.deliveries=[];
+  // Remove completed ones older than 5 min
+  S.deliveries=S.deliveries.filter(d=>!(d.collected));
+  // Fill up to 3 pending orders
+  const pending=S.deliveries.filter(d=>!d.sentAt);
+  const needed=3-pending.length;
+  for(let i=0;i<needed;i++){
+    const def=GALAXY_ORDERS[Math.floor(Math.random()*GALAXY_ORDERS.length)];
+    const reward=Math.floor(def.minR+Math.random()*(def.maxR-def.minR));
+    const mins=1+Math.random()*2; // 1-3 min
+    S.deliveries.push({
+      uid: Date.now()+Math.random(),
+      orderId: def.id,
+      reward,
+      durationMs: Math.floor(mins*60000),
+      sentAt: null,
+      arrivedAt: null,
+      collected: false,
+    });
+  }
+}
+
+function tickDeliveries(){
+  if(!S.deliveries) return;
+  const now=Date.now();
+  S.deliveries.forEach(d=>{
+    if(d.sentAt&&!d.arrivedAt&&!d.collected){
+      if(now>=d.sentAt+d.durationMs){
+        d.arrivedAt=now;
+        showMilestone({emoji:'💰',name:`₹${fmt(d.reward)} delivery arrived!`});
+      }
+    }
+  });
+}
+
+function sendDelivery(uid){
+  const d=S.deliveries.find(x=>x.uid===uid);
+  if(!d||d.sentAt) return;
+  d.sentAt=Date.now();
+  SND.playSFX('launch');
+  renderGalaxy();
+}
+
+function collectDelivery(uid){
+  const d=S.deliveries.find(x=>x.uid===uid);
+  if(!d||!d.arrivedAt||d.collected) return;
+  d.collected=true;
+  S.rupees+=d.reward;
+  S.totalRupees+=d.reward;
+  SND.playSFX('collect');
+  render();
+  showMilestone({emoji:'🎉',name:`+₹${fmt(d.reward)} collected!`});
+  // Refresh orders
+  generateOrders();
+  renderGalaxy();
+}
+
+function renderGalaxy(){
+  const el=document.getElementById('galaxyContent');
+  const unlocked=S.rankIdx>=5; // Intergalactic Chai Boss
+
+  if(!unlocked){
+    const need=RANKS[5];
+    const cur=RANKS[S.rankIdx];
+    const nxt=RANKS[Math.min(S.rankIdx+1,RANKS.length-1)];
+    el.innerHTML=`
+      <div class="locked-galaxy">
+        <span class="lock-ico">🔒</span>
+        <div class="lock-title">Galaxy Delivery — Locked</div>
+        <div class="lock-desc">
+          Reach <b style="color:var(--blue)">Intergalactic Chai Boss 🚀</b><br>
+          to unlock galaxy delivery orders.<br><br>
+          Send chai to alien civilisations and<br>
+          earn <b style="color:#4eff8a">₹1M – ₹1B</b> per delivery!
+        </div>
+        <div class="lock-progress">
+          <div class="lock-rank">Current: ${cur.emoji} ${cur.name}</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:3px;">
+            Need: ${need.emoji} ${need.name} (${fmt(need.t)} cups total)
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Ensure orders exist
+  generateOrders();
+
+  const now=Date.now();
+  let html=`
+    <div class="galaxy-header">
+      <div class="galaxy-title">🚀 Galaxy Chai Transport</div>
+      <div class="galaxy-sub">Send chai shipments across the cosmos. Earn ₹ on arrival!</div>
+      <div class="rupee-total">₹ ${fmt(S.rupees)} <small>total earnings</small></div>
+    </div>
+    <div class="orders-title">📦 Active Orders</div>`;
+
+  S.deliveries.filter(d=>!d.collected).forEach(d=>{
+    const def=GALAXY_ORDERS.find(g=>g.id===d.orderId);
+    if(!def) return;
+    const isSending=d.sentAt&&!d.arrivedAt;
+    const isReady=!!d.arrivedAt&&!d.collected;
+    const elapsed=d.sentAt?(now-d.sentAt):0;
+    const pct=isSending?Math.min((elapsed/d.durationMs)*100,99):isReady?100:0;
+    const remaining=isSending?Math.max(0,Math.ceil((d.durationMs-elapsed)/1000)):0;
+    const mins=Math.floor(remaining/60), secs=remaining%60;
+    const timeStr=remaining>0?`${mins}:${secs.toString().padStart(2,'0')}`:'Arrived!';
+
+    html+=`<div class="order-card ${def.class} ${isSending?'sending':''} ${isReady?'done':''}">
+      <div class="order-top">
+        <span class="order-galaxy">${def.emoji} ${def.galaxy}</span>
+        <span class="order-reward">₹${fmt(d.reward)}</span>
+      </div>
+      <div class="order-desc">${def.desc}</div>
+      <div class="order-meta">
+        <span class="order-time">⏱ <span>${isSending||isReady?timeStr:Math.floor(d.durationMs/60000)+'-'+Math.ceil(d.durationMs/60000)+' min'}</span></span>
+        ${!d.sentAt?`<button class="send-btn" onclick="sendDelivery(${d.uid})">🚀 Send Chai</button>`:''}
+        ${isReady?`<button class="collect-btn" onclick="collectDelivery(${d.uid})">💰 Collect ₹${fmt(d.reward)}</button>`:''}
+        ${isSending?`<span style="font-size:0.7rem;color:var(--blue);font-weight:800">In Transit...</span>`:''}
+      </div>
+      ${isSending?`<div class="dlv-bar-wrap">
+        <div class="dlv-bar"><div class="dlv-bar-fill" style="width:${pct}%"></div></div>
+      </div>`:''}
+    </div>`;
+  });
+
+  el.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════
+//  SOUND ENGINE
+//  - Web Audio API based (mobile compatible)
+//  - iOS unlock on first gesture
+//  - 80ms tap cooldown (no spam overlap)
+//  - BGM loops seamlessly
+//  - Per-channel volume (BGM / SFX)
+// ══════════════════════════════════════════════
+
+const SND = {
+  ctx: null,
+  bgmNode: null,
+  bgmGain: null,
+  sfxGain: null,
+  buffers: {},
+  bgmVol: 0.5,
+  sfxVol: 0.8,
+  bgmMuted: false,
+  sfxMuted: false,
+  unlocked: false,
+  lastTap: 0,
+
+  // Files map
+  FILES: {
+    tap:        './sounds/tap.mp3',
+    buy:        './sounds/buy.mp3',
+    levelup:    './sounds/levelup.mp3',
+    golden:     './sounds/golden.mp3',
+    critical:   './sounds/critical.mp3',
+    launch:     './sounds/rocketlaunch.mp3',
+    collect:    './sounds/collectcoin.mp3',
+    achieve:    './sounds/achivement.mp3',
+    bgm:        './sounds/loop.mp3',
+  },
+
+  init(){
+    this.ctx      = new (window.AudioContext || window.webkitAudioContext)();
+    this.bgmGain  = this.ctx.createGain();
+    this.sfxGain  = this.ctx.createGain();
+    this.bgmGain.gain.value = this.bgmVol;
+    this.sfxGain.gain.value = this.sfxVol;
+    this.bgmGain.connect(this.ctx.destination);
+    this.sfxGain.connect(this.ctx.destination);
+    this.loadAll();
+  },
+
+  async loadAll(){
+    for(const [key, url] of Object.entries(this.FILES)){
+      try{
+        const res = await fetch(url);
+        const buf = await res.arrayBuffer();
+        this.buffers[key] = await this.ctx.decodeAudioData(buf);
+      } catch(e){ console.warn(`Sound load failed: ${key}`, e); }
+    }
+    this.startBGM();
+  },
+
+  // iOS / Android needs user gesture to resume AudioContext
+  unlock(){
+    if(this.unlocked) return;
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+    this.unlocked = true;
+  },
+
+  playSFX(key){
+    if(this.sfxMuted || !this.ctx || !this.buffers[key]) return;
+    // 80ms cooldown only for tap to prevent spam noise
+    if(key === 'tap'){
+      const now = Date.now();
+      if(now - this.lastTap < 80) return;
+      this.lastTap = now;
+    }
+    try{
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.buffers[key];
+      src.connect(this.sfxGain);
+      src.start(0);
+    } catch(e){}
+  },
+
+  startBGM(){
+    if(!this.ctx || !this.buffers.bgm) return;
+    if(this.bgmNode) try{ this.bgmNode.stop(); }catch(e){}
+    this.bgmNode = this.ctx.createBufferSource();
+    this.bgmNode.buffer = this.buffers.bgm;
+    this.bgmNode.loop = true; // 🎵 seamless loop!
+    this.bgmNode.connect(this.bgmGain);
+    if(!this.bgmMuted) try{ this.bgmNode.start(0); }catch(e){}
+  },
+
+  setBGMVol(v){
+    this.bgmVol = v;
+    if(this.bgmGain) this.bgmGain.gain.value = this.bgmMuted ? 0 : v;
+  },
+
+  setSFXVol(v){
+    this.sfxVol = v;
+    if(this.sfxGain) this.sfxGain.gain.value = this.sfxMuted ? 0 : v;
+  },
+
+  toggleBGM(){
+    this.bgmMuted = !this.bgmMuted;
+    if(this.bgmGain) this.bgmGain.gain.value = this.bgmMuted ? 0 : this.bgmVol;
+    return this.bgmMuted;
+  },
+
+  toggleSFX(){
+    this.sfxMuted = !this.sfxMuted;
+    if(this.sfxGain) this.sfxGain.gain.value = this.sfxMuted ? 0 : this.sfxVol;
+    return this.sfxMuted;
+  },
+};
+
+// Unlock audio on first user gesture (iOS requirement)
+function unlockAudio(){
+  SND.unlock();
+  // Start BGM on first touch if loaded
+  if(SND.ctx && SND.buffers.bgm && !SND.bgmNode?.playbackState){
+    try{ SND.startBGM(); }catch(e){}
+  }
+}
+document.addEventListener('touchstart', unlockAudio, {once:true, passive:true});
+document.addEventListener('click',      unlockAudio, {once:true});
+
+// Resume BGM when tab becomes visible again
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && SND.ctx?.state === 'suspended') SND.ctx.resume();
+});
+
+// Init sound engine
+SND.init();
+
+// ── SETTINGS MODAL LOGIC ──
+document.getElementById('settingsBtn').addEventListener('click', ()=>{
+  document.getElementById('settingsModal').classList.add('open');
+});
+document.getElementById('settingsClose').addEventListener('click', ()=>{
+  document.getElementById('settingsModal').classList.remove('open');
+});
+document.getElementById('settingsModal').addEventListener('click', e=>{
+  if(e.target === document.getElementById('settingsModal'))
+    document.getElementById('settingsModal').classList.remove('open');
+});
+
+function updateSliderTrack(slider){
+  slider.style.setProperty('--pct', slider.value + '%');
+}
+
+const bgmSlider = document.getElementById('bgmSlider');
+const sfxSlider = document.getElementById('sfxSlider');
+
+bgmSlider.addEventListener('input', ()=>{
+  const v = bgmSlider.value / 100;
+  SND.setBGMVol(v);
+  document.getElementById('bgmVal').textContent = bgmSlider.value + '%';
+  updateSliderTrack(bgmSlider);
+});
+
+sfxSlider.addEventListener('input', ()=>{
+  const v = sfxSlider.value / 100;
+  SND.setSFXVol(v);
+  document.getElementById('sfxVal').textContent = sfxSlider.value + '%';
+  updateSliderTrack(sfxSlider);
+  SND.playSFX('tap'); // preview sfx when dragging
+});
+
+// Init slider tracks
+updateSliderTrack(bgmSlider);
+updateSliderTrack(sfxSlider);
+
+const muteBgmBtn = document.getElementById('muteBgmBtn');
+const muteSfxBtn = document.getElementById('muteSfxBtn');
+
+muteBgmBtn.addEventListener('click', ()=>{
+  const muted = SND.toggleBGM();
+  muteBgmBtn.textContent = muted ? '🔇 BGM Off' : '🎵 BGM On';
+  muteBgmBtn.classList.toggle('active', muted);
+});
+
+muteSfxBtn.addEventListener('click', ()=>{
+  const muted = SND.toggleSFX();
+  muteSfxBtn.textContent = muted ? '🔇 SFX Off' : '🔊 SFX On';
+  muteSfxBtn.classList.toggle('active', muted);
+});
+
+// ── DELETE DATA FLOW ──
+let delCode = '';
+
+document.getElementById('deleteDataBtn').addEventListener('click', ()=>{
+  document.getElementById('settingsModal').classList.remove('open');
+  document.getElementById('delStep1').style.display = 'block';
+  document.getElementById('delStep2').style.display = 'none';
+  document.getElementById('deleteModal').classList.add('open');
+});
+
+document.getElementById('delCancel1').addEventListener('click', ()=>{
+  document.getElementById('deleteModal').classList.remove('open');
+});
+
+document.getElementById('delYes').addEventListener('click', ()=>{
+  delCode = String(Math.floor(100 + Math.random() * 900));
+  document.getElementById('delCodeDisplay').textContent = delCode;
+  document.getElementById('delCodeInput').value = '';
+  document.getElementById('delConfirmBtn').disabled = true;
+  document.getElementById('delCodeInput').classList.remove('wrong');
+  document.getElementById('delStep1').style.display = 'none';
+  document.getElementById('delStep2').style.display = 'block';
+  setTimeout(()=> document.getElementById('delCodeInput').focus(), 100);
+});
+
+document.getElementById('delCancel2').addEventListener('click', ()=>{
+  document.getElementById('deleteModal').classList.remove('open');
+});
+
+document.getElementById('delCodeInput').addEventListener('input', e=>{
+  const val = e.target.value.slice(0, 3);
+  e.target.value = val;
+  document.getElementById('delConfirmBtn').disabled = (val !== delCode);
+  e.target.classList.remove('wrong');
+});
+
+document.getElementById('delConfirmBtn').addEventListener('click', async ()=>{
+  const val = document.getElementById('delCodeInput').value;
+  if(val !== delCode){
+    document.getElementById('delCodeInput').classList.add('wrong');
+    setTimeout(()=> document.getElementById('delCodeInput').classList.remove('wrong'), 400);
+    return;
+  }
+  S = freshState();
+  try{
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).clear();
+  } catch(e){ console.warn('IDB clear failed', e); }
+  document.getElementById('deleteModal').classList.remove('open');
+  renderUpgrades();
+  renderAchievements();
+  render();
+  showMilestone({emoji:'🗑️', name:'All data erased!'});
+});
+//  DB: ChaiKingDB  |  Store: gameState  |  Key: 'save'
+//  Fully async, works offline, survives app kill
+// ══════════════════════════════════════════════
+
+const DB_NAME    = 'ChaiKingDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'gameState';
+let db = null;
+
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if(!d.objectStoreNames.contains(STORE_NAME)){
+        d.createObjectStore(STORE_NAME); // key-value store
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror   = e => { console.warn('IDB open error', e); reject(e); };
+  });
+}
+
+function idbSave(data){
+  return new Promise((resolve, reject)=>{
+    if(!db){ resolve(); return; }
+    const tx    = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const req   = store.put(data, 'save');
+    req.onsuccess = () => resolve();
+    req.onerror   = e  => { console.warn('IDB save error', e); reject(e); };
+  });
+}
+
+function idbLoad(){
+  return new Promise((resolve, reject)=>{
+    if(!db){ resolve(null); return; }
+    const tx    = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const req   = store.get('save');
+    req.onsuccess = e => resolve(e.target.result || null);
+    req.onerror   = e => { console.warn('IDB load error', e); resolve(null); };
+  });
+}
+
+async function saveGame(){
+  S.lastSave = Date.now();
+  await idbSave(S);
+}
+
+async function loadGame(){
+  try{
+    const saved = await idbLoad();
+    if(!saved) return;
+
+    // Offline earnings — max 8h, 50% rate
+    const offSecs = Math.min((Date.now() - saved.lastSave) / 1000, 28800);
+    const offGain = (saved.cps || 0) * offSecs * 0.5;
+
+    S = { ...freshState(), ...saved };
+
+    if(offGain > 1){
+      S.chai        += offGain;
+      S.total       += offGain;
+      S.rupees      += offGain * 2;
+      S.totalRupees += offGain * 2;
+      const el = document.getElementById('offToast');
+      document.getElementById('off-txt').textContent = `☕ +${fmt(offGain)} cups earned!`;
+      document.getElementById('off-sub').textContent = `${Math.floor(offSecs/60)}min offline earnings added`;
+      el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'), 4000);
+    }
+  } catch(e){ console.warn('Load failed', e); }
+}
+
+document.getElementById('saveBtn').addEventListener('click', async ()=>{
+  await saveGame();
+  document.getElementById('saveBtn').textContent = '✅ Saved!';
+  setTimeout(()=>document.getElementById('saveBtn').textContent = '💾 Save', 1500);
+});
+
+// ── NEWS TICKER ──
+let nIdx=0;
+function rotateNews(){
+  const el=document.getElementById('tickerTxt');
+  el.style.animation='none';
+  el.textContent=NEWS[nIdx++%NEWS.length];
+  el.offsetHeight;
+  el.style.animation='tick 22s linear infinite';
+}
+rotateNews(); setInterval(rotateNews, 22000);
+
+// ── INIT — open IDB first, then load, then start ──
+openDB()
+  .then(loadGame)
+  .then(()=>{
+    renderUpgrades();
+    renderAchievements();
+    render();
+    requestAnimationFrame(loop);
+    // Auto-save every 30s via IDB
+    setInterval(saveGame, 30000);
+  })
+  .catch(err=>{
+    console.warn('IDB failed, starting fresh:', err);
+    renderUpgrades();
+    renderAchievements();
+    render();
+    requestAnimationFrame(loop);
+    setInterval(saveGame, 30000);
+  });
+
+// ── IDLE TIMER — pause sounds only after 30s no tap ──
+// Uses gain fade to 0 instead of ctx.suspend()
+// so AudioContext stays alive (iOS needs it alive)
+let idleTimer = null;
+const IDLE_TIME = 30000;
+let soundsIdled = false;
+
+function pauseAllSounds() {
+  if (!SND.ctx || soundsIdled) return;
+  soundsIdled = true;
+  // Fade BGM to 0 smoothly
+  if (SND.bgmGain) SND.bgmGain.gain.setTargetAtTime(0, SND.ctx.currentTime, 0.5);
+  // Fade SFX to 0
+  if (SND.sfxGain) SND.sfxGain.gain.setTargetAtTime(0, SND.ctx.currentTime, 0.5);
+}
+
+function resumeAllSounds() {
+  if (!SND.ctx || !soundsIdled) return;
+  soundsIdled = false;
+  // Restore BGM volume (respect mute state)
+  if (SND.bgmGain)
+    SND.bgmGain.gain.setTargetAtTime(
+      SND.bgmMuted ? 0 : SND.bgmVol, SND.ctx.currentTime, 0.3);
+  // Restore SFX volume (respect mute state)
+  if (SND.sfxGain)
+    SND.sfxGain.gain.setTargetAtTime(
+      SND.sfxMuted ? 0 : SND.sfxVol, SND.ctx.currentTime, 0.3);
+}
+
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  resumeAllSounds();
+  idleTimer = setTimeout(pauseAllSounds, IDLE_TIME);
+}
+
+// Only tap events reset idle (mousemove is too aggressive on mobile)
+['click', 'touchstart', 'keydown'].forEach(evt => {
+  document.addEventListener(evt, resetIdleTimer, { passive: true });
+});
+
+// Start idle timer on load
+resetIdleTimer();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('✅ Service Worker Registered'))
+      .catch(err => console.warn('SW Error:', err));
+  });
+}
+</script>
+</body>
+</html>

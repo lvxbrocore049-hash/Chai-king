@@ -1,0 +1,26 @@
+{
+  "name": "Chai King of the Cosmos",
+  "short_name": "Chai King",
+  "description": "From Gully to Galaxy — one cup at a time ☕",
+  "start_url": "./chai-king-v2-1.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07080f",
+  "theme_color": "#c47c2b",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "./icon/192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon/512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"]
+}
